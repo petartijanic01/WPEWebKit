@@ -1056,6 +1056,8 @@ private:
 
     bool m_isSuspended { false };
     bool m_packReverseRowOrderSupported { false };
+    bool m_nonCompositedWebGLEnabled { false };
+    bool m_usingPageLifecycle { false };
     // The ordinal number of when the context was last active (drew, read pixels).
     uint64_t m_activeOrdinal { 0 };
     WeakPtrFactory<WebGLRenderingContextBase> m_contextObjectWeakPtrFactory;

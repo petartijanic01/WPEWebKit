@@ -633,7 +633,11 @@ void WebGLRenderingContextBase::addActivityStateChangeObserverIfNecessary()
     if (!canvas)
         return;
 
-    if (!canvas->scriptExecutionContext()->settingsValues().nonCompositedWebGLEnabled)
+    // We also use the activityState changes when nonCompositedWebGL is enabled, but not
+    // if we're using PageLifecycle, as we don't hide to transparent there.
+    m_nonCompositedWebGLEnabled = canvas->document().frame()->settings().nonCompositedWebGLEnabled();
+    m_usingPageLifecycle = canvas->document().frame()->settings().pageLifecycleAPIEnabled();
+    if (!m_nonCompositedWebGLEnabled || m_usingPageLifecycle)
         return;
 
     RefPtr page = canvas->document().page();
@@ -649,7 +653,7 @@ void WebGLRenderingContextBase::removeActivityStateChangeObserver()
     if (!canvas)
         return;
 
-    if (!canvas->scriptExecutionContext()->settingsValues().nonCompositedWebGLEnabled)
+    if (!m_nonCompositedWebGLEnabled)
         return;
 
     if (RefPtr page = canvas ? canvas->document().page() : nullptr)
