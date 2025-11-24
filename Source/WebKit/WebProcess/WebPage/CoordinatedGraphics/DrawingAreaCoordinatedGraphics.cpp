@@ -74,6 +74,10 @@ DrawingAreaCoordinatedGraphics::DrawingAreaCoordinatedGraphics(WebPage& webPage,
         webPage->corePage()->suspendActiveDOMObjectsAndAnimations();
         m_isViewSuspended = true;
     }
+
+    // Launch on hidden state situation.
+    if (m_usingPageLifecycle && !parameters.activityState.contains(ActivityState::IsVisible))
+        suspendPainting();
 }
 
 DrawingAreaCoordinatedGraphics::~DrawingAreaCoordinatedGraphics() = default;
@@ -616,6 +620,12 @@ void DrawingAreaCoordinatedGraphics::enterAcceleratedCompositingMode(GraphicsLay
         m_layerTreeHost->pauseRendering();
 
     m_layerTreeHost->setRootCompositingLayer(graphicsLayer);
+
+    // We have entered AC mode and we have been set the root layer for the first time.
+    // If we're using Page Lifecycle then at this point the rendering is suspended and the
+    // view is in hidden state, and we need to produce a single frame.
+    if (m_usingPageLifecycle && m_isPaintingSuspended)
+        m_layerTreeHost->renderSingleFrameWhilePaused();
 
     if (m_shouldSendEnterAcceleratedCompositingMode)
         sendEnterAcceleratedCompositingModeIfNeeded();

@@ -69,6 +69,7 @@ LayerTreeHost::LayerTreeHost(WebPage& webPage, WebCore::PlatformDisplayID displa
     , m_didRenderFrameTimer(RunLoop::main(), this, &LayerTreeHost::didRenderFrameTimerFired)
 #endif
     , m_coordinator(webPage, *this)
+    , m_usingPageLifecycle(webPage.corePage()->settings().pageLifecycleAPIEnabled())
 #if !HAVE(DISPLAY_LINK)
     , m_displayID(displayID)
 #endif
@@ -199,6 +200,14 @@ void LayerTreeHost::layerFlushTimerFired()
 #endif
 
     WTFEndSignpost(this, LayerFlushTimerFired);
+
+    // If m_suspendAfterNextFrame is true, we were suspended but resumed to allow a single
+    // layerFlush. Force the compositor to render one frame and go back to suspension.
+    if (m_suspendAfterNextFlush) {
+        m_suspendAfterNextFlush = false;
+        m_isSuspended = true;
+        m_compositor->renderSingleFrame();
+    }
 }
 
 void LayerTreeHost::setRootCompositingLayer(GraphicsLayer* graphicsLayer)
@@ -291,6 +300,20 @@ void LayerTreeHost::resumeRendering()
     m_surface->visibilityDidChange(true);
     renderNextFrame(true);
     m_compositor->resume();
+}
+
+void LayerTreeHost::renderSingleFrameWhilePaused()
+{
+    // This allows painting a single frame while the rendering has been paused without
+    // actually resuming it. This is only used on 2 cases when page lifecycle is enabled:
+    // - When launching the application on hidden state.
+    // - When resuming from suspension into hidden state.
+
+    if (!m_isSuspended || !m_usingPageLifecycle)
+        return;
+
+    m_isSuspended = false;
+    m_suspendAfterNextFlush = true;
 }
 
 GraphicsLayerFactory* LayerTreeHost::graphicsLayerFactory()
