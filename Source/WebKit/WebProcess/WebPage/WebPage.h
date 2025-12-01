@@ -2298,6 +2298,8 @@ private:
     bool shouldAvoidComputingPostLayoutDataForEditorState() const;
 
     void useRedirectionForCurrentNavigation(WebCore::ResourceResponse&&);
+    
+    void resumeTimerFired();
 
     void dispatchLoadEventToFrameOwnerElement(WebCore::FrameIdentifier);
 
@@ -2880,6 +2882,8 @@ private:
 #if ENABLE(EXTENSION_CAPABILITIES)
     String m_mediaEnvironment;
 #endif
+    WebCore::Timer m_resumeTimer;
+    CompletionHandler<void(bool)> m_resumeCompletionHandler;
 
 #if ENABLE(WRITING_TOOLS_UI)
     UniqueRef<TextAnimationController> m_textAnimationController;

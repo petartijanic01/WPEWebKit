@@ -1976,6 +1976,9 @@ public:
 
     unsigned unloadCounter() const { return m_unloadCounter; }
 
+    void freeze();
+    void resume();
+
 protected:
     enum class ConstructionFlag : uint8_t {
         Synthesized = 1 << 0,
@@ -2679,6 +2682,7 @@ private:
     const std::optional<FrameIdentifier> m_frameIdentifier;
     std::optional<bool> m_cachedCookiesEnabled;
 
+    bool m_frozen { false };
     mutable std::unique_ptr<CSSParserContext> m_cachedCSSParserContext;
     mutable std::unique_ptr<PermissionsPolicy> m_permissionsPolicy;
 };
