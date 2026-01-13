@@ -50,6 +50,7 @@
 #include <pal/SessionID.h>
 #include <wtf/Assertions.h>
 #include <wtf/CheckedPtr.h>
+#include <wtf/CompletionHandler.h>
 #include <wtf/Forward.h>
 #include <wtf/Function.h>
 #include <wtf/HashSet.h>
@@ -1118,7 +1119,7 @@ public:
 #if ENABLE(IMAGE_ANALYSIS)
     WEBCORE_EXPORT void analyzeImagesForFindInPage(Function<void()>&& callback);
 #endif
-
+    void setVisibilityChangeCompletionHandler(CompletionHandler<void()>&& completionHandler) { m_visibilityChangeCompletionHandler = WTFMove(completionHandler); }
     BadgeClient& badgeClient() { return m_badgeClient.get(); }
     HistoryItemClient& historyItemClient() { return m_historyItemClient.get(); }
 
@@ -1586,6 +1587,8 @@ private:
 #endif
 
     ContentSecurityPolicyModeForExtension m_contentSecurityPolicyModeForExtension { ContentSecurityPolicyModeForExtension::None };
+
+    CompletionHandler<void()> m_visibilityChangeCompletionHandler;
 
     Ref<BadgeClient> m_badgeClient;
     Ref<HistoryItemClient> m_historyItemClient;
