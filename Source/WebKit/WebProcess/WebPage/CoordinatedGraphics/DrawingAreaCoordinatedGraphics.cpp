@@ -625,7 +625,7 @@ void DrawingAreaCoordinatedGraphics::enterAcceleratedCompositingMode(GraphicsLay
     // If we're using Page Lifecycle then at this point the rendering is suspended and the
     // view is in hidden state, and we need to produce a single frame.
     if (m_usingPageLifecycle && m_isPaintingSuspended)
-        m_layerTreeHost->renderSingleFrameWhilePaused();
+        m_layerTreeHost->renderSingleFrameWhilePaused(false);
 
     if (m_shouldSendEnterAcceleratedCompositingMode)
         sendEnterAcceleratedCompositingModeIfNeeded();
@@ -868,6 +868,14 @@ void DrawingAreaCoordinatedGraphics::preferredBufferFormatsDidChange()
 uint64_t DrawingAreaCoordinatedGraphics::nativeWindowID() const
 {
     return m_layerTreeHost ? m_layerTreeHost->nativeWindowID() : 0;
+}
+
+void DrawingAreaCoordinatedGraphics::renderSingleFrameWhilePaused()
+{
+    if (!m_isPaintingSuspended || !m_usingPageLifecycle || !m_layerTreeHost)
+        return;
+
+    m_layerTreeHost->renderSingleFrameWhilePaused(true);
 }
 
 } // namespace WebKit

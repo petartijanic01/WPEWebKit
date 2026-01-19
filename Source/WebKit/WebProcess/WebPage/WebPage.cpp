@@ -4320,6 +4320,8 @@ void WebPage::resumeTimerFired()
 {
     dispatchEventToAllDocuments(*m_page, EventType::Resume);
 
+    m_drawingArea->renderSingleFrameWhilePaused();
+
     auto completionHandler = std::exchange(m_resumeCompletionHandler, { });
     completionHandler(true);
 }

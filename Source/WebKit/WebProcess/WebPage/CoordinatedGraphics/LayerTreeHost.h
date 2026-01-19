@@ -95,7 +95,7 @@ public:
 
     void pauseRendering(bool toTransparent = false);
     void resumeRendering();
-    void renderSingleFrameWhilePaused();
+    void renderSingleFrameWhilePaused(bool);
 
     WebCore::GraphicsLayerFactory* graphicsLayerFactory();
 
